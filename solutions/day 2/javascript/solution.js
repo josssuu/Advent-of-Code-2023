@@ -71,9 +71,6 @@ const validGames = games.reduce((validGames, game) => {
     return validGames;
 }, []);
 
-console.log("all games", games.length);
-console.log("valid games", validGames.length);
-
 let idSum = validGames.reduce((sum, game) => {return sum + (game.id || 0)}, 0)
 
-console.log("sum of valid games ids", idSum)
+console.log("Part 1:", idSum)
