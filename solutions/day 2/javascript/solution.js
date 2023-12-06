@@ -74,3 +74,31 @@ const validGames = games.reduce((validGames, game) => {
 let idSum = validGames.reduce((sum, game) => {return sum + (game.id || 0)}, 0)
 
 console.log("Part 1:", idSum)
+
+function getSmallestCubeCount(game) {
+    return game.rounds.reduce((cubes, round) => {
+        round.actions.forEach((action) => {
+            let color = action.color
+            cubes[color] = Math.max((cubes[color] || 0), action.count)
+        })
+        return cubes
+    }, {})
+}
+
+function powerOfCubes(cubes) {
+    let power = 1;
+
+    for (const [color, count] of Object.entries(cubes)) {
+        power *= count
+    }
+    
+    return power
+}
+
+function powerOfGames(games) {
+    return games.reduce((power, game) => {
+        return power + powerOfCubes(getSmallestCubeCount(game))
+    }, 0)
+}
+
+console.log("Part 2:", powerOfGames(games))
