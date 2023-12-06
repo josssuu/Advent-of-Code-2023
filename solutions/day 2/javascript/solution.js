@@ -10,6 +10,7 @@ function parseRound(roundString) {
 }
 
 function importGames(filePath) {
+    try {
     const fs = require("fs");
     const fileRows = fs.readFileSync(filePath).toString().split("\n");
 
@@ -19,6 +20,10 @@ function importGames(filePath) {
         const rounds = roundString.split(";").map(parseRound)
         return {id, rounds}
     })
+    } catch (error) {
+        console.error("Error reading file:", error)
+        return [];
+    }
 }
 
 function isValidGame(cubes, game) {
