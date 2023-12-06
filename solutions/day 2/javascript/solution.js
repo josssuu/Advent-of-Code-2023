@@ -1,59 +1,56 @@
 
+function parseAction(actionString) {
+    const [count, color] = actionString.trim().split(" ")
+    return {count: parseInt(count), color}
+}
+
+function parseRound(roundString) {
+    const actions = roundString.split(",").map(parseAction)
+    return {actions}
+}
+
 function importGames(filePath) {
     const fs = require("fs");
     const fileRows = fs.readFileSync(filePath).toString().split("\n");
 
-    return fileRows.reduce((games, game) => {
-        let id = parseInt(game.split(":")[0].split(" ")[1]);
-        let rounds = [];
-
-        let actions = game.split(":")[1].split(";");
-
-        actions.forEach((actionsString) => {
-            let round = {
-                "actions": actionsString.split(",").reduce((actionsArray, action) => {
-                    action = action.trim();
-                    
-                    actionsArray.push(
-                        {
-                            "count": parseInt(action.split(" ")[0]),
-                            "color": action.split(" ")[1]
-                        }
-                    );
-            
-                    return actionsArray;
-                }, [])
-            };
-
-            rounds.push(round);
-        });
-
-        games.push(
-            {
-                "id": id,
-                "rounds": rounds
-            }
-        );
-        return games
-    }, []);
+    return fileRows.map((row) => {
+        const [idString, roundString] = row.split(":")
+        const id = parseInt(idString.split(" ")[1])
+        const rounds = roundString.split(";").map(parseRound)
+        return {id, rounds}
+    })
 }
 
 function isValidGame(cubes, game) {
-    function isValidRound(cubes, round) {
+    function isValidRound(round) {
         usedCubes = {}
 
         return round.actions.every((action) => {          
-            let color = action.color
-
-            usedCubes[color] = (usedCubes[color] || 0) + action.count
-
+            const {color, count} = action
+            usedCubes[color] = (usedCubes[color] || 0) + count
             return (usedCubes[color] || 0) <= (cubes[color] || 0) 
         })
     }
 
-    return game.rounds.every((round) => {
-        return isValidRound(cubes, round);
-    })
+    return game.rounds.every(isValidRound)
+}
+
+function getSmallestCubeCount(game) {
+    return game.rounds.reduce((cubes, round) => {
+        round.actions.forEach((action) => {
+            const {color, count} = action
+            cubes[color] = Math.max((cubes[color] || 0), count)
+        })
+        return cubes
+    }, {})
+}
+
+function powerOfCubes(cubes) {
+    return Object.values(cubes).reduce((result, count) => result * count, 1);
+}
+
+function powerOfGames(games) {
+    return games.reduce((result, game) => result + powerOfCubes(getSmallestCubeCount(game)), 0)
 }
 
 const initialCubes = {
@@ -63,42 +60,8 @@ const initialCubes = {
 }
 
 const games = importGames("../input.txt")
-
-const validGames = games.reduce((validGames, game) => {
-    if (isValidGame(initialCubes, game))
-        validGames.push(game);
-
-    return validGames;
-}, []);
-
-let idSum = validGames.reduce((sum, game) => {return sum + (game.id || 0)}, 0)
+const validGames = games.filter((game) => isValidGame(initialCubes, game));
+const idSum = validGames.reduce((sum, game) => sum + (game.id || 0), 0)
 
 console.log("Part 1:", idSum)
-
-function getSmallestCubeCount(game) {
-    return game.rounds.reduce((cubes, round) => {
-        round.actions.forEach((action) => {
-            let color = action.color
-            cubes[color] = Math.max((cubes[color] || 0), action.count)
-        })
-        return cubes
-    }, {})
-}
-
-function powerOfCubes(cubes) {
-    let power = 1;
-
-    for (const [color, count] of Object.entries(cubes)) {
-        power *= count
-    }
-    
-    return power
-}
-
-function powerOfGames(games) {
-    return games.reduce((power, game) => {
-        return power + powerOfCubes(getSmallestCubeCount(game))
-    }, 0)
-}
-
 console.log("Part 2:", powerOfGames(games))
