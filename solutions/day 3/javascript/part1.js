@@ -50,4 +50,4 @@ const filePath = "../input.txt"
 const engineSchematic = importEngineSchematic(filePath)
 const partNumbers = getPartNumbers(engineSchematic)
 
-console.log("Part 1:", partNumbers.reduce((sum, partNumber) => sum + partNumber))
+console.log("Answer:", partNumbers.reduce((sum, partNumber) => sum + partNumber))

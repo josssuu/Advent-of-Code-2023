@@ -43,4 +43,4 @@ fs.readFileSync("../input.txt")
 
 let sum = calibrationValues.reduce((sum, calibrationValue) => sum += calibrationValue);
 
-console.log("sum of all of the calibration values:", sum);
+console.log("Answer:", sum);

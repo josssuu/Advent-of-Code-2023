@@ -26,20 +26,6 @@ function importGames(filePath) {
     }
 }
 
-function isValidGame(cubes, game) {
-    function isValidRound(round) {
-        const usedCubes = {}
-
-        return round.actions.every((action) => {          
-            const {color, count} = action
-            usedCubes[color] = (usedCubes[color] || 0) + count
-            return (usedCubes[color] || 0) <= (cubes[color] || 0) 
-        })
-    }
-
-    return game.rounds.every(isValidRound)
-}
-
 function getSmallestCubeCount(game) {
     return game.rounds.reduce((cubes, round) => {
         round.actions.forEach((action) => {
@@ -58,15 +44,6 @@ function powerOfGames(games) {
     return games.reduce((result, game) => result + powerOfCubes(getSmallestCubeCount(game)), 0)
 }
 
-const initialCubes = {
-    "red": 12,
-    "green": 13,
-    "blue": 14
-}
-
 const games = importGames("../input.txt")
-const validGames = games.filter((game) => isValidGame(initialCubes, game));
-const idSum = validGames.reduce((sum, game) => sum + (game.id || 0), 0)
 
-console.log("Part 1:", idSum)
-console.log("Part 2:", powerOfGames(games))
+console.log("Answer:", powerOfGames(games))
