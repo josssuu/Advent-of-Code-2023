@@ -15,7 +15,7 @@ function extractCalibrationValue(row) {
 var calibrationValues = [];
 
 const fs = require("fs");
-fs.readFileSync("../input.txt")
+fs.readFileSync("input.txt")
     .toString()
     .split("\n")
     .forEach(row => calibrationValues.push(extractCalibrationValue(row)));

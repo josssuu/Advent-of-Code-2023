@@ -46,7 +46,7 @@ function getPartNumbers(engineSchematic) {
     return result
 }
 
-const filePath = "../input.txt"
+const filePath = "input.txt"
 const engineSchematic = importEngineSchematic(filePath)
 const partNumbers = getPartNumbers(engineSchematic)
 

@@ -46,7 +46,7 @@ const initialCubes = {
     "blue": 14
 }
 
-const games = importGames("../input.txt")
+const games = importGames("input.txt")
 const validGames = games.filter((game) => isValidGame(initialCubes, game));
 const idSum = validGames.reduce((sum, game) => sum + (game.id || 0), 0)
 

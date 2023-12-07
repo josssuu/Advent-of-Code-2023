@@ -44,6 +44,6 @@ function powerOfGames(games) {
     return games.reduce((result, game) => result + powerOfCubes(getSmallestCubeCount(game)), 0)
 }
 
-const games = importGames("../input.txt")
+const games = importGames("input.txt")
 
 console.log("Answer:", powerOfGames(games))
