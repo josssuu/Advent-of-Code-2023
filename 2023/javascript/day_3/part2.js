@@ -11,43 +11,67 @@ function importEngineSchematic(filePath) {
     }
 }
 
-function isSymbol(char) {
-    return !/^\d|\.$/.test(char)
+function isRangeOverlapping([startA, endA], [startB, endB]) {
+    if (startA < startB) 
+        return endA >= startB
+    else    
+        return endB >= startA
 }
 
-function getPartNumbers(engineSchematic) {
+function getGearAdjacentParts(engineSchematic, x, y) {
     const result = []
+    const adjacencyRange = [x - 1, x + 1]
+    const regex = /\d+/g
+    let match
 
-    engineSchematic.forEach((engineRow, y) => {
-        const regex = /\d+/g
-        let match
-        
-        // Looping through numbers from row
-        while ((match = regex.exec(engineRow)) != null) {
+    // Checking previous/current/next row
+    for (const yOffset of [-1, 0, 1]) {
+        const tempY = y + yOffset
+
+        if (tempY < 0 || tempY >= engineSchematic.length) continue;
+
+        // Looping through part numbers from row
+        while ((match = regex.exec(engineSchematic[tempY])) != null) {
             const numberString = match[0]
-            const index = match.index
-            
-            // Checking previous/current/next row
-            for (let i = -1; i <= 1; i++) {
-                const tempX = index - 1
-                const tempY = index + numberString.length + 1
-                
-                const adjacentRow = engineSchematic[y + i]?.substring(tempX, tempY)
-                const isSymbolAdjacent = adjacentRow?.split("").some(isSymbol)
+            const index = match.index        
+            const partNumberRange = [index, index + numberString.length - 1]
 
-                if (isSymbolAdjacent) {
-                    result.push(parseInt(numberString))
-                    break
-                }
+            if (isRangeOverlapping(adjacencyRange, partNumberRange)) {
+                result.push({
+                    "x": index,
+                    "y": tempY,
+                    "partNumber": parseInt(numberString)
+                })
             }
         }
-    })
 
+    }
     return result
 }
 
-const filePath = "input.txt"
-const engineSchematic = importEngineSchematic(filePath)
-const partNumbers = getPartNumbers(engineSchematic)
+function getGears(engineSchematic) {
+    const result = []
+    const GEAR = '*'
 
-console.log("Answer:", partNumbers.reduce((sum, partNumber) => sum + partNumber))
+    engineSchematic.forEach((engineRow, y) => {      
+        for (let x = 0; x < engineRow.length; x++) {
+            if (engineRow[x] !== GEAR) continue;
+
+            const adjacentParts = getGearAdjacentParts(engineSchematic, x, y)
+
+            if (adjacentParts.length >= 2) {
+                result.push({
+                    "x": x,
+                    "y": y,
+                    "ratio": adjacentParts.reduce((ratio, part) => ratio * part.partNumber, 1)
+                })
+            }
+        }
+    })
+    return result
+}
+
+const engineSchematic = importEngineSchematic("input.txt")
+const gears = getGears(engineSchematic)
+
+console.log("Answer:", gears.reduce((sum, gear) => sum + gear.ratio, 0))
